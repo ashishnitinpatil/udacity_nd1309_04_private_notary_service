@@ -1,0 +1,21 @@
+{
+  "name": "04_private_notary_service",
+  "version": "1.0.0",
+  "description": "Udacity BlockChain Developer Nanodegree Project #4",
+  "main": "server.js",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "crypto-js": "^3.1.9-1",
+    "express": "^4.16.4",
+    "level": "^4.0.0"
+  },
+  "devDependencies": {
+    "mocha": "^5.2.0",
+    "supertest": "^3.3.0"
+  },
+  "scripts": {
+    "test": "node ./node_modules/mocha/bin/mocha"
+  },
+  "author": "Ashish Patil",
+  "license": "ISC"
+}
