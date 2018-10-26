@@ -7,10 +7,9 @@ const chainDB = './chaindata';
 const db = level(chainDB);
 
 
-// Get block from levelDB with given height
-function getBlock(height) {
+function getKey(key) {
     return new Promise((resolve, reject) => {
-        db.get(height, function(err, value) {
+        db.get(key, function(err, value) {
             if (err)
                 reject(err);
             else
@@ -20,9 +19,20 @@ function getBlock(height) {
 }
 
 
+function addData(key, data) {
+    return db.put(key, data);
+}
+
+
+// Get block from levelDB with given height
+function getBlock(height) {
+    return getKey(height);
+}
+
+
 // Add block data to levelDB at given height
 function addBlock(height, data) {
-    return db.put(height, data);
+    return addData(height, data);
 }
 
 
