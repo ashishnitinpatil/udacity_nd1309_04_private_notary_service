@@ -3,7 +3,7 @@
 |  =========================================================*/
 
 const SHA256 = require('crypto-js/sha256');
-const levelDB = require('../utility/levelHelper');
+const levelDB = require('../utility/level');
 const Block = require('./block');
 
 

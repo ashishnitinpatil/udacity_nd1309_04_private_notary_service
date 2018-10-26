@@ -1,6 +1,6 @@
 const supertest = require('supertest');
 const assert = require('assert');
-const bitcoin = require('../utility/bitcoinHelper');
+const bitcoin = require('../utility/bitcoin');
 
 
 describe('Test validateAddress', function() {
