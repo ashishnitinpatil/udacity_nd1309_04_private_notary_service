@@ -1,8 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 
-const Block = require('./block');
-const Blockchain = require('./simpleChain');
+const Block = require('./models/block');
+const Blockchain = require('./models/simpleChain');
 
 
 const app = express();
