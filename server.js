@@ -9,8 +9,7 @@ const PORT = 8000;
 
 // for parsing application/json
 app.use(bodyParser.json());
-// for parsing application/x-www-form-urlencoded
-// app.use(bodyParser.urlencoded({ extended: true }));
+
 
 // index
 app.get('/', function(req, res) {
