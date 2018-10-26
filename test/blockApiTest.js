@@ -40,16 +40,36 @@ describe('GET /block/:height', function() {
  * Testing block creation endpoint
  */
 describe('POST /block', function() {
-    it('POST valid block should return newly created block', function(done) {
+    it('POST valid block (data string) should return newly created block', function(done) {
+        const data = 'New test block';
         server
         .post('/block')
-        .send({'body': 'New test block'})
+        .send({'body': data})
         .expect('Content-Type', /json/)
         .expect(201)
         .end((err, res) => {
             // console.log(res.body);
             assert(res.body.height >= 1);
-            assert(res.body.body === 'New test block');
+            assert(res.body.body === data);
+            assert(res.body.previousBlockHash);
+            done();
+        });
+    });
+});
+
+describe('POST /block', function() {
+    it('POST valid block (data object) should return newly created block', function(done) {
+        const data = {'address': 'Test address', 'star': 'Test star'};
+        server
+        .post('/block')
+        .send({'body': data})
+        .expect('Content-Type', /json/)
+        .expect(201)
+        .end((err, res) => {
+            // console.log(res.body);
+            assert(res.body.height >= 1);
+            assert(res.body.body.address == data.address &&
+                   res.body.body.star == data.star);
             assert(res.body.previousBlockHash);
             done();
         });

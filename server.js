@@ -35,7 +35,7 @@ app.get('/block/:height', async function(req, res) {
 // create block
 app.post('/block', async function(req, res) {
     data = req.body.body;
-    if (!data || typeof data !== 'string') {
+    if (!data) {
         res.status(400).json({'error': 'invalid "body" key in request body'});
         return;
     }
