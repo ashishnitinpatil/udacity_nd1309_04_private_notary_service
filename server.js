@@ -1,8 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 
-const Block = require('./models/block');
-const Blockchain = require('./models/simpleChain');
+const blockApi = require('./routes/blockApi');
 
 
 const app = express();
@@ -20,34 +19,9 @@ app.get('/', function(req, res) {
     });
 });
 
-// get block
-app.get('/block/:height', async function(req, res) {
-    try {
-        const block = await Blockchain.getBlock(req.params.height);
-        res.status(200).json(block);
-    } catch(err) {
-        res.status(404).json({
-            'error': `Could not get block #${req.params.height}: ${err}`
-        });
-    }
-});
-
-// create block
-app.post('/block', async function(req, res) {
-    data = req.body.body;
-    if (!data) {
-        res.status(400).json({'error': 'invalid "body" key in request body'});
-        return;
-    }
-    block = new Block(data);
-
-    try {
-        const newBlock = await Blockchain.addBlock(block);
-        res.status(201).json(block);
-    } catch (err) {
-        res.status(500).json({'error': 'Could not add block: ${err}'});
-    }
-});
+// Block API Routes
+app.get('/block/:height', blockApi.getBlock);
+app.post('/block', blockApi.createBlock);
 
 
 app.listen(PORT, () => console.log(`Server listening on port ${PORT}!`));
