@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 
 const blockApi = require('./routes/blockApi');
+const blockchainIdApi = require('./routes/blockchainIdApi');
 
 
 const app = express();
@@ -21,6 +22,10 @@ app.get('/', function(req, res) {
 // Block API Routes
 app.get('/block/:height', blockApi.getBlock);
 app.post('/block', blockApi.createBlock);
+
+// Blockchain ID API Routes
+app.post('/requestValidation', blockchainIdApi.requestValidation);
+app.post('/message-signature/validate', blockchainIdApi.validateSignature);
 
 
 app.listen(PORT, () => console.log(`Server listening on port ${PORT}!`));
