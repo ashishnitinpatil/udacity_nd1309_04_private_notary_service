@@ -7,6 +7,9 @@ const chainDB = './chaindata';
 const db = level(chainDB);
 
 
+const BLOCK_PREFIX = '_BLOCK_';
+
+
 function getKey(key) {
     return new Promise((resolve, reject) => {
         db.get(key, function(err, value) {
@@ -26,13 +29,13 @@ function addData(key, data) {
 
 // Get block from levelDB with given height
 function getBlock(height) {
-    return getKey(height);
+    return getKey(`${BLOCK_PREFIX}${height}`);
 }
 
 
 // Add block data to levelDB at given height
 function addBlock(height, data) {
-    return addData(height, data);
+    return addData(`${BLOCK_PREFIX}${height}`, data);
 }
 
 
@@ -42,7 +45,9 @@ function getChainLength() {
         let chainLength = 0;
 
         db.createKeyStream().on('data', function(data) {
-            chainLength++;
+            if (typeof data === 'string' && data.startsWith(BLOCK_PREFIX)) {
+                chainLength++;
+            }
         }).on('error', function(err) {
             console.log('Unable to read key stream!', err);
             reject(err);
