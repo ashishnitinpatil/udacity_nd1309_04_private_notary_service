@@ -36,7 +36,7 @@ describe('POST /requestValidation', function() {
             assert(res.body.address === ADDRESS);
             assert(res.body.message.startsWith(ADDRESS) &&
                    res.body.message.endsWith('starRegistry'));
-            assert(res.body.timestamp <= time.getCurrentTimestamp());
+            assert(res.body.timestamp <= time.now());
             TIMESTAMP = res.body.timestamp;
             assert(res.body.validationWindow > 0);
             done();
@@ -77,31 +77,7 @@ describe('POST /requestValidation', function() {
  * Testing validateSignature endpoint
  */
 describe('POST /message-signature/validate', function() {
-    it('Correct validation should work', function(done) {
-        const address = ADDRESS;
-        const timestamp = TIMESTAMP;
-        const message = getMessage(address, timestamp);
-        const signature = getSignature(message);
-        server
-        .post('/message-signature/validate')
-        .send({address, signature})
-        .expect('Content-Type', /json/)
-        .expect(200)
-        .end((err, res) => {
-            // console.log(res.body);
-            assert(res.body.registerStar === true);
-            assert(res.body.status.address === address);
-            assert(res.body.status.requestTimeStamp === timestamp);
-            assert(res.body.status.message === message);
-            assert(res.body.status.validationWindow > 0);
-            assert(res.body.status.messageSignature === 'valid');
-            done();
-        });
-    });
-});
-
-describe('POST /message-signature/validate', function() {
-    it('Requesting for invalid bitcoin address should err', function(done) {
+    it('Validating with invalid signature should err', function(done) {
         const address = ADDRESS;
         const timestamp = TIMESTAMP;
         const message = getMessage(address, timestamp);
@@ -125,7 +101,31 @@ describe('POST /message-signature/validate', function() {
 });
 
 describe('POST /message-signature/validate', function() {
-    it('Validating for invalid bitcoin address should err', function(done) {
+    it('Correct signature should work', function(done) {
+        const address = ADDRESS;
+        const timestamp = TIMESTAMP;
+        const message = getMessage(address, timestamp);
+        const signature = getSignature(message);
+        server
+        .post('/message-signature/validate')
+        .send({address, signature})
+        .expect('Content-Type', /json/)
+        .expect(200)
+        .end((err, res) => {
+            // console.log(res.body);
+            assert(res.body.registerStar === true);
+            assert(res.body.status.address === address);
+            assert(res.body.status.requestTimeStamp === timestamp);
+            assert(res.body.status.message === message);
+            assert(res.body.status.validationWindow > 0);
+            assert(res.body.status.messageSignature === 'valid');
+            done();
+        });
+    });
+});
+
+describe('POST /message-signature/validate', function() {
+    it('Validating for invalid address should err', function(done) {
         const address = 'INVALIDSGbXjWKaAnYXbMpZ6sbrSAo3DpZ';
         const signature = 'invalid';
         server

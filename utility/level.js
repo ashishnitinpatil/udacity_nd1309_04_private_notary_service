@@ -8,6 +8,7 @@ const db = level(chainDB);
 
 
 const BLOCK_PREFIX = '_BLOCK_';
+const ADDRESS_PREFIX = '_ADDRESS_';
 
 
 function getKey(key) {
@@ -34,13 +35,13 @@ function deleteKey(key) {
 
 // Get block from levelDB with given height
 function getBlock(height) {
-    return getKey(`${BLOCK_PREFIX}${height}`);
+    return getKey(BLOCK_PREFIX + height);
 }
 
 
 // Add block data to levelDB at given height
 function addBlock(height, data) {
-    return addData(`${BLOCK_PREFIX}${height}`, data);
+    return addData(BLOCK_PREFIX + height, data);
 }
 
 
@@ -63,21 +64,21 @@ function getChainLength() {
 }
 
 
-// Store the timestamp for a wallet address
-function addAddressTimestamp(address, timestamp) {
-    return addData(address, timestamp);
+// Store the request status for a wallet address
+function addAddressStatus(address, status) {
+    return addData(ADDRESS_PREFIX + address, status);
 }
 
 
-// Get the request timestamp for a wallet address
-function getAddressTimestamp(address) {
-    return getKey(address);
+// Get the request status for a wallet address
+function getAddressStatus(address) {
+    return getKey(ADDRESS_PREFIX + address);
 }
 
 
-// Forget the timestamped wallet address
-function removeAddressTimestamp(address) {
-    return deleteKey(address);
+// Forget the wallet address
+function removeAddressStatus(address) {
+    return deleteKey(ADDRESS_PREFIX + address);
 }
 
 
@@ -85,7 +86,7 @@ module.exports = {
     getBlock,
     addBlock,
     getChainLength,
-    addAddressTimestamp,
-    getAddressTimestamp,
-    removeAddressTimestamp,
+    addAddressStatus,
+    getAddressStatus,
+    removeAddressStatus,
 }
