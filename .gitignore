@@ -62,3 +62,6 @@ typings/
 
 # Chain data
 chaindata/
+
+# Fuse hidden (temp. deleted but not hard deleted files)
+.fuse_hidden*
