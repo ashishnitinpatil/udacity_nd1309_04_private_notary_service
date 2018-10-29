@@ -11,6 +11,16 @@ function getMessage(address, timestamp) {
 }
 
 
+// DRY for use outside of this model
+async function fetch(address) {
+    if (!bitcoin.validateAddress(address)) {
+        throw new Error('Invalid wallet address');
+    }
+
+    return JSON.parse(await levelDB.getAddressStatus(address));
+}
+
+
 async function register(address) {
     // topmost so that we always have correct timestamp
     const requestTimeStamp = time.now();
@@ -85,6 +95,7 @@ async function validate(address, signature) {
 module.exports = {
     INTERVAL,
     getMessage,
+    fetch,
     register,
     validate,
 }

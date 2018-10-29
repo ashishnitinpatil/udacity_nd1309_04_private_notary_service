@@ -1,5 +1,7 @@
 const Block = require('../models/block');
+const Star = require('../models/star');
 const Blockchain = require('../models/simpleChain');
+const blockchainId = require('../models/blockchainId');
 
 
 async function getBlock(req, res) {
@@ -15,18 +17,25 @@ async function getBlock(req, res) {
 
 
 async function createBlock(req, res) {
-    data = req.body.body;
-    if (!data) {
-        res.status(400).json({'error': 'invalid "body" key in request body'});
+    const address = req.body.address;
+    let star, block;
+    try {
+        const status = await blockchainId.fetch(address);
+        if (!status.isWhitelisted) {
+            throw new Error('Address has not been validated');
+        }
+        star = new Star(req.body.star);
+    } catch(error) {
+        res.status(400).json({error});
         return;
     }
-    block = new Block(data);
+    block = new Block({address, star});
 
     try {
         const newBlock = await Blockchain.addBlock(block);
         res.status(201).json(block);
     } catch (err) {
-        res.status(500).json({'error': 'Could not add block: ${err}'});
+        res.status(500).json({'error': `Could not add block: ${err}`});
     }
 }
 

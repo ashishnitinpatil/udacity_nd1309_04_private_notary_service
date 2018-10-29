@@ -154,3 +154,126 @@ describe('POST /message-signature/validate', function() {
         });
     });
 });
+
+/**
+ * Testing get a block (genesis block should always be there)
+ */
+describe('GET /block/:height', function() {
+    it('GET genesis block (0) should work', function(done) {
+        server
+        .get('/block/0')
+        .expect('Content-Type', /json/)
+        .expect(200)
+        .end((err, res) => {
+            // console.log(res.body);
+            assert.strictEqual(res.body.height, 0);
+            assert.strictEqual(res.body.previousBlockHash, "");
+            done();
+        });
+    });
+});
+
+describe('GET /block/:height', function() {
+    it('Throw error for invalid height', function(done) {
+        server
+        .get('/block/9999')
+        .expect('Content-Type', /json/)
+        .expect(404)
+        .end((err, res) => {
+            // console.log(res.body);
+            assert(res.body.error);
+            done();
+        });
+    });
+});
+
+/**
+ * Testing block creation / star registration endpoint
+ */
+describe('POST /block', function() {
+    it('Valid star registration should return newly created block', function(done) {
+        const data = {
+            "address": ADDRESS,
+            "star": {
+                "dec": "-26° 29'\'' 24.9",
+                "ra": "16h 29m 1.0s",
+                "story": "Found star using https://www.google.com/sky/",
+            }
+        };
+        server
+        .post('/block')
+        .send(data)
+        .expect('Content-Type', /json/)
+        .expect(201)
+        .end((err, res) => {
+            // console.log(res.body);
+            assert(res.body.hash);
+            assert(res.body.time >= TIMESTAMP);
+            assert(res.body.height >= 1);
+            assert(res.body.body.address === data.address);
+            assert(res.body.body.star.ra === data.star.ra);
+            assert(res.body.body.star.dec === data.star.dec);
+            assert(res.body.body.star.story === new Buffer(data.star.story).toString('hex'));
+            assert(res.body.previousBlockHash);
+            done();
+        });
+    });
+});
+
+describe('POST /block', function() {
+    it('Invalid star should throw error', function(done) {
+        const data = {
+            "address": ADDRESS,
+            "star": {
+                "invalid": "This shouldn't work due to bad star object",
+            }
+        };
+        server
+        .post('/block')
+        .send(data)
+        .expect('Content-Type', /json/)
+        .expect(400)
+        .end((err, res) => {
+            // console.log(res.body);
+            assert(res.body.error);
+            done();
+        });
+    });
+});
+
+describe('POST /block', function() {
+    it('Unregistered address should throw error', function(done) {
+        const data = {
+            "address": bitcoin.payments.p2pkh({pubkey: bitcoin.ECPair.makeRandom().publicKey}).address,
+            "star": {
+                "dec": "-26° 29'\'' 24.9",
+                "ra": "16h 29m 1.0s",
+                "story": "Found star using https://www.google.com/sky/",
+            }
+        };
+        server
+        .post('/block')
+        .send(data)
+        .expect('Content-Type', /json/)
+        .expect(400)
+        .end((err, res) => {
+            // console.log(res.body);
+            assert(res.body.error);
+            done();
+        });
+    });
+});
+
+describe('POST /block', function() {
+    it('Throw error for missing data in POST', function(done) {
+        server
+        .post('/block')
+        .expect('Content-Type', /json/)
+        .expect(400)
+        .end((err, res) => {
+            // console.log(res.body);
+            assert(res.body.error);
+            done();
+        });
+    });
+});

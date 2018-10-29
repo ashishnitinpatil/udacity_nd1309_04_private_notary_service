@@ -8,6 +8,6 @@ module.exports = class Block {
 			this.height = 0,
 			this.body = data,
 			this.time = 0,
-			this.previousBlockHash = ""
+			this.previousBlockHash = "";
 	}
 }
