@@ -195,7 +195,7 @@ describe('POST /block', function() {
         const data = {
             "address": ADDRESS,
             "star": {
-                "dec": "-26° 29'\'' 24.9",
+                "dec": "-26° 29' 24.9",
                 "ra": "16h 29m 1.0s",
                 "story": "Found star using https://www.google.com/sky/",
             }
@@ -246,7 +246,7 @@ describe('POST /block', function() {
         const data = {
             "address": bitcoin.payments.p2pkh({pubkey: bitcoin.ECPair.makeRandom().publicKey}).address,
             "star": {
-                "dec": "-26° 29'\'' 24.9",
+                "dec": "-26° 29' 24.9",
                 "ra": "16h 29m 1.0s",
                 "story": "Found star using https://www.google.com/sky/",
             }
