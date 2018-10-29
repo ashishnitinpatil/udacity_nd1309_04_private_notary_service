@@ -4,10 +4,18 @@ const Blockchain = require('../models/simpleChain');
 const blockchainId = require('../models/blockchainId');
 
 
+function addStoryDecoded(block) {
+    if (block.height > 0) { // ignore genesis block
+        block.body.star.storyDecoded = new Buffer(block.body.star.story, 'hex').toString();
+    }
+    return block;
+}
+
+
 async function getBlock(req, res) {
     try {
         const block = await Blockchain.getBlock(req.params.height);
-        res.status(200).json(block);
+        res.status(200).json(addStoryDecoded(block));
     } catch(err) {
         res.status(404).json({
             'error': `Could not get block #${req.params.height}: ${err}`

@@ -14,6 +14,12 @@ function getSignature(message) {
     return bitcoinMessage.sign(message, KEYPAIR.privateKey, KEYPAIR.compressed).toString('base64');
 }
 let TIMESTAMP = null;
+const STAR = {
+    "dec": "-26° 29' 24.9",
+    "ra": "16h 29m 1.0s",
+    "story": "Found star using https://www.google.com/sky/",
+};
+let LATEST_BLOCK = 1;
 
 
 // copied so as to not import levelDB again (errs due to locked DB)
@@ -194,11 +200,7 @@ describe('POST /block', function() {
     it('Valid star registration should return newly created block', function(done) {
         const data = {
             "address": ADDRESS,
-            "star": {
-                "dec": "-26° 29' 24.9",
-                "ra": "16h 29m 1.0s",
-                "story": "Found star using https://www.google.com/sky/",
-            }
+            "star": STAR,
         };
         server
         .post('/block')
@@ -209,6 +211,7 @@ describe('POST /block', function() {
             // console.log(res.body);
             assert(res.body.hash);
             assert(res.body.time >= TIMESTAMP);
+            LATEST_BLOCK = res.body.height;
             assert(res.body.height >= 1);
             assert(res.body.body.address === data.address);
             assert(res.body.body.star.ra === data.star.ra);
@@ -245,11 +248,7 @@ describe('POST /block', function() {
     it('Unregistered address should throw error', function(done) {
         const data = {
             "address": bitcoin.payments.p2pkh({pubkey: bitcoin.ECPair.makeRandom().publicKey}).address,
-            "star": {
-                "dec": "-26° 29' 24.9",
-                "ra": "16h 29m 1.0s",
-                "story": "Found star using https://www.google.com/sky/",
-            }
+            "star": STAR,
         };
         server
         .post('/block')
@@ -273,6 +272,26 @@ describe('POST /block', function() {
         .end((err, res) => {
             // console.log(res.body);
             assert(res.body.error);
+            done();
+        });
+    });
+});
+
+describe('GET /block/:height', function() {
+    it('GET latest block should now work', function(done) {
+        server
+        .get(`/block/${LATEST_BLOCK}`)
+        .expect('Content-Type', /json/)
+        .expect(200)
+        .end((err, res) => {
+            // console.log(res.body);
+            assert.strictEqual(res.body.height, LATEST_BLOCK);
+            assert.strictEqual(res.body.body.address, ADDRESS);
+            assert.strictEqual(res.body.body.star.dec, STAR.dec);
+            assert.strictEqual(res.body.body.star.ra, STAR.ra);
+            assert.strictEqual(res.body.body.star.storyDecoded, STAR.story);
+            assert.strictEqual(res.body.body.star.story, new Buffer(STAR.story).toString('hex'));
+            assert(res.body.previousBlockHash);
             done();
         });
     });
