@@ -3,7 +3,7 @@
 Project #4 of Udacity Blockchain Developer Nanodegree (ND1309)
 
 
-### Summary
+## Summary
 
 This project built on Node with the help of ExpressJS sets up a RESTful private notary service. **The blockchain ID validation & star registration flow** for the notary service is as follows -
 
@@ -58,8 +58,8 @@ c. **GET /stars/address:address** - Fetch stars registered under a given wallet 
   [{"hash":"3af153e9e9a3339c02a82a592f7f9ae703c06ea6759ab03415d6764af8deccfc", "height":1, "body":{"address":"1F8R6PkAzBwjSN7L9bXDLC3CX7cQnfLsCC", "star":{"dec":"-25° 24' 23.9", "ra":"15h 59m 1.0s", "story":"466f756e642073746172207573696e672068747470733a2f2f7777772e72616e646f6d2e636f6d2f736b792f"}}, "time":"1540932935248", "previousBlockHash":"a70653c895e236cead18f6a20ae24bbde13855bbfad86fcb9fba36aae43263ae"}]
   ```
 
------------------
-### Prerequisites
+----------------
+## Prerequisites
 
 Installing Node and NPM is pretty straightforward using the installer package available from the [Node.js® web site](https://nodejs.org/en/).
 
@@ -69,12 +69,12 @@ npm install
 ```
 
 
-### Starting the server
+## Starting the server
 
 You may start the API server with `npm start` or `node server.js`
 
 
-### Testing
+## Testing
 
 The test folder contains the relevant code for testing the API endpoints.
 
