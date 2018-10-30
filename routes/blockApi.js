@@ -25,6 +25,10 @@ async function getBlock(req, res) {
 
 
 async function createBlock(req, res) {
+    // This currently has a huge flaw that anyone can register any star
+    // under someone else's address, but the project reqs are like that, so :shrug:
+    // Of course this is somewhat good for that address user
+    // but some people don't like the spam or just want the exclusitivity
     const address = req.body.address;
     let star, block;
     try {
@@ -48,7 +52,37 @@ async function createBlock(req, res) {
 }
 
 
+async function getStarsByAddress(req, res) {
+    const address = req.params.address;
+
+    // first check if address is worthy of the lookup (validation routine completed)
+    // minor overhead for validated addresses, but more than compensates for non-validated ones
+    let isValidated = true;
+    try {
+        const status = await blockchainId.fetch(address);
+        if (!status.isWhitelisted) {
+            isValidated = false;
+        }
+    } catch(error) {
+        isValidated = false;
+    }
+
+    const addrStars = [];
+    if (isValidated) {
+        const allStars = await Blockchain.getChain();
+        allStars.forEach(star => {
+            if (star.body.address === address) {
+                addrStars.push(addStoryDecoded(star));
+            }
+        });
+    }
+
+    res.status(200).json(addrStars);
+}
+
+
 module.exports = {
     getBlock,
     createBlock,
+    getStarsByAddress,
 }

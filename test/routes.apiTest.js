@@ -21,6 +21,8 @@ const STAR = {
 };
 let LATEST_BLOCK = 1;
 
+const INVALID_ADDRESS = 'INVALIDSGbXjWKaAnYXbMpZ6sbrSAo3DpZ';
+
 
 // copied so as to not import levelDB again (errs due to locked DB)
 function getMessage(address, timestamp) {
@@ -54,7 +56,7 @@ describe('POST /requestValidation', function() {
     it('Requesting for invalid bitcoin address should err', function(done) {
         server
         .post('/requestValidation')
-        .send({'address': 'INVALIDSGbXjWKaAnYXbMpZ6sbrSAo3DpZ'})
+        .send({'address': INVALID_ADDRESS})
         .expect('Content-Type', /json/)
         .expect(400)
         .end((err, res) => {
@@ -132,7 +134,7 @@ describe('POST /message-signature/validate', function() {
 
 describe('POST /message-signature/validate', function() {
     it('Validating for invalid address should err', function(done) {
-        const address = 'INVALIDSGbXjWKaAnYXbMpZ6sbrSAo3DpZ';
+        const address = INVALID_ADDRESS;
         const signature = 'invalid';
         server
         .post('/message-signature/validate')
@@ -277,6 +279,9 @@ describe('POST /block', function() {
     });
 });
 
+/**
+ * Testing star lookup endpoints
+ */
 describe('GET /block/:height', function() {
     it('GET latest block should now work', function(done) {
         server
@@ -292,6 +297,37 @@ describe('GET /block/:height', function() {
             assert.strictEqual(res.body.body.star.storyDecoded, STAR.story);
             assert.strictEqual(res.body.body.star.story, new Buffer(STAR.story).toString('hex'));
             assert(res.body.previousBlockHash);
+            done();
+        });
+    });
+});
+
+describe('GET /stars/address:address', function() {
+    it('GET stars by address should work', function(done) {
+        server
+        .get(`/stars/address:${ADDRESS}`)
+        .expect('Content-Type', /json/)
+        .expect(200)
+        .end((err, res) => {
+            // console.log(res.body);
+            assert(Array.isArray(res.body));
+            assert(res.body.length >= 1);
+            assert.strictEqual(res.body[0].body.address, ADDRESS);
+            done();
+        });
+    });
+});
+
+describe('GET /stars/address:address', function() {
+    it('GET stars by address should return empty for invalid address', function(done) {
+        server
+        .get(`/stars/address:${INVALID_ADDRESS}`)
+        .expect('Content-Type', /json/)
+        .expect(200)
+        .end((err, res) => {
+            // console.log(res.body);
+            assert(Array.isArray(res.body));
+            assert.strictEqual(res.body.length, 0);
             done();
         });
     });

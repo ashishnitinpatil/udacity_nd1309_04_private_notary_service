@@ -53,6 +53,27 @@ class Blockchain {
 		return JSON.parse(await levelDB.getBlock(blockHeight));
 	}
 
+	// get chain (sorted blocks) from block height `from` to `upto`.
+	async getChain(from=0, upto=null) {
+		from = parseInt(from);
+		upto = parseInt(upto);
+		let chainHeight = await this.getBlockHeight();
+		if (isNaN(from) || from < 0 || from > chainHeight) {
+			from = chainHeight;
+		}
+		if (isNaN(upto) || upto < 0) {
+			upto = chainHeight;
+		} else if (upto > chainHeight) {
+			upto = chainHeight;
+		}
+
+		const chain = [];
+		for (let i = from; i <= upto; i++) {
+			chain.push(await this.getBlock(i));
+		}
+		return chain;
+	}
+
 	// validate block
 	async validateBlock(blockHeight) {
 		// get block object
