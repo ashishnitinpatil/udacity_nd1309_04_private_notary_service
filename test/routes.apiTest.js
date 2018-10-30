@@ -19,7 +19,19 @@ const STAR = {
     "ra": "16h 29m 1.0s",
     "story": "Found star using https://www.google.com/sky/",
 };
-let LATEST_BLOCK = 1;
+
+let LATEST_BLOCK;
+// handy to check if LATEST_BLOCK was populated before executing some tests
+function check(done) {
+    if (LATEST_BLOCK) {
+        done();
+    }
+    else {
+        setTimeout(function() {
+            check(done);
+        }, 500);
+    }
+}
 
 const INVALID_ADDRESS = 'INVALIDSGbXjWKaAnYXbMpZ6sbrSAo3DpZ';
 
@@ -213,7 +225,7 @@ describe('POST /block', function() {
             // console.log(res.body);
             assert(res.body.hash);
             assert(res.body.time >= TIMESTAMP);
-            LATEST_BLOCK = res.body.height;
+            LATEST_BLOCK = res.body;
             assert(res.body.height >= 1);
             assert(res.body.body.address === data.address);
             assert(res.body.body.star.ra === data.star.ra);
@@ -283,14 +295,16 @@ describe('POST /block', function() {
  * Testing star lookup endpoints
  */
 describe('GET /block/:height', function() {
+    before(done => check(done));
+
     it('GET latest block should now work', function(done) {
         server
-        .get(`/block/${LATEST_BLOCK}`)
+        .get(`/block/${LATEST_BLOCK.height}`)
         .expect('Content-Type', /json/)
         .expect(200)
         .end((err, res) => {
             // console.log(res.body);
-            assert.strictEqual(res.body.height, LATEST_BLOCK);
+            assert.strictEqual(res.body.height, LATEST_BLOCK.height);
             assert.strictEqual(res.body.body.address, ADDRESS);
             assert.strictEqual(res.body.body.star.dec, STAR.dec);
             assert.strictEqual(res.body.body.star.ra, STAR.ra);
@@ -328,6 +342,52 @@ describe('GET /stars/address:address', function() {
             // console.log(res.body);
             assert(Array.isArray(res.body));
             assert.strictEqual(res.body.length, 0);
+            done();
+        });
+    });
+});
+
+describe('GET /stars/hash:hash', function() {
+    before(done => check(done));
+
+    it('GET star by hash should work', function(done) {
+        server
+        .get(`/stars/hash:${LATEST_BLOCK.hash}`)
+        .expect('Content-Type', /json/)
+        .expect(200)
+        .end((err, res) => {
+            // console.log(res.body);
+            assert.strictEqual(res.body.hash, LATEST_BLOCK.hash);
+            assert.strictEqual(res.body.height, LATEST_BLOCK.height);
+            assert.strictEqual(res.body.body.address, LATEST_BLOCK.body.address);
+            done();
+        });
+    });
+});
+
+describe('GET /stars/hash:hash', function() {
+    it('GET star by absent hash should give 404', function(done) {
+        server
+        .get('/stars/hash:ABSENTHASHa44e2e388752fe20bd8d9dfc20b79dd5c236d543cb4b5ca9b6f3b4')
+        .expect('Content-Type', /json/)
+        .expect(404)
+        .end((err, res) => {
+            // console.log(res.body);
+            assert(res.body.error);
+            done();
+        });
+    });
+});
+
+describe('GET /stars/hash:hash', function() {
+    it('GET star by invalid hash should give 400', function(done) {
+        server
+        .get('/stars/hash:INVALIDHASH')
+        .expect('Content-Type', /json/)
+        .expect(400)
+        .end((err, res) => {
+            // console.log(res.body);
+            assert(res.body.error);
             done();
         });
     });

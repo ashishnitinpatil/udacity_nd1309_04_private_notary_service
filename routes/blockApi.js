@@ -69,7 +69,7 @@ async function getStarsByAddress(req, res) {
 
     const addrStars = [];
     if (isValidated) {
-        const allStars = await Blockchain.getChain();
+        const allStars = await Blockchain.getChain(from=1);
         allStars.forEach(star => {
             if (star.body.address === address) {
                 addrStars.push(addStoryDecoded(star));
@@ -81,8 +81,36 @@ async function getStarsByAddress(req, res) {
 }
 
 
+async function getStarByHash(req, res) {
+    const hash = req.params.hash;
+
+    if (typeof hash !== 'string' || !hash || hash.length != 64) {
+        const error = 'Invalid hash value';
+        res.status(400).json({error});
+        return;
+    }
+
+    let star;
+    const allStars = await Blockchain.getChain(from=1);
+    allStars.forEach(block => {
+        if (block.hash === hash) {
+            star = addStoryDecoded(block);
+        }
+    });
+
+    if (star) {
+        res.status(200).json(star);
+    }
+    else {
+        const error = 'Star with given hash value not found';
+        res.status(404).json({error});
+    }
+}
+
+
 module.exports = {
     getBlock,
     createBlock,
     getStarsByAddress,
+    getStarByHash,
 }

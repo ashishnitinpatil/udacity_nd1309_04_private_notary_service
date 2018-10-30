@@ -23,6 +23,8 @@ app.get('/', function(req, res) {
 app.get('/block/:height', blockApi.getBlock);
 app.post('/block', blockApi.createBlock);
 app.get('/stars/address\::address', blockApi.getStarsByAddress);
+app.get('/stars/hash\::hash', blockApi.getStarByHash);
+
 
 // Blockchain ID API Routes
 app.post('/requestValidation', blockchainIdApi.requestValidation);
