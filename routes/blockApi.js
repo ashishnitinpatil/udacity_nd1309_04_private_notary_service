@@ -25,10 +25,6 @@ async function getBlock(req, res) {
 
 
 async function createBlock(req, res) {
-    // This currently has a huge flaw that anyone can register any star
-    // under someone else's address, but the project reqs are like that, so :shrug:
-    // Of course this is somewhat good for that address user
-    // but some people don't like the spam or just want the exclusitivity
     const address = req.body.address;
     let star, block;
     try {
@@ -45,6 +41,8 @@ async function createBlock(req, res) {
 
     try {
         const newBlock = await Blockchain.addBlock(block);
+        // require revalidation (SINGLE star registration each time)
+        await blockchainId.remove(address);
         res.status(201).json(block);
     } catch (err) {
         res.status(500).json({'error': `Could not add block: ${err}`});
@@ -55,20 +53,15 @@ async function createBlock(req, res) {
 async function getStarsByAddress(req, res) {
     const address = req.params.address;
 
-    // first check if address is worthy of the lookup (validation routine completed)
-    // minor overhead for validated addresses, but more than compensates for non-validated ones
-    let isValidated = true;
+    let isValid = true;
     try {
-        const status = await blockchainId.fetch(address);
-        if (!status.isWhitelisted) {
-            isValidated = false;
-        }
+        blockchainId.errIfInvalid(address);
     } catch(error) {
-        isValidated = false;
+        isValid = false;
     }
 
     const addrStars = [];
-    if (isValidated) {
+    if (isValid) {
         const allStars = await Blockchain.getChain(from=1);
         allStars.forEach(star => {
             if (star.body.address === address) {

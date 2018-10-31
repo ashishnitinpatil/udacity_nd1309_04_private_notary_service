@@ -11,11 +11,16 @@ function getMessage(address, timestamp) {
 }
 
 
-// DRY for use outside of this model
-async function fetch(address) {
+function errIfInvalid(address) {
     if (!bitcoin.validateAddress(address)) {
         throw new Error('Invalid wallet address');
     }
+}
+
+
+// DRY for use outside of this model
+async function fetch(address) {
+    errIfInvalid(address);
 
     return JSON.parse(await levelDB.getAddressStatus(address));
 }
@@ -25,9 +30,7 @@ async function register(address) {
     // topmost so that we always have correct timestamp
     const requestTimeStamp = time.now();
     // address validation in all cases
-    if (!bitcoin.validateAddress(address)) {
-        throw new Error('Invalid wallet address');
-    }
+    errIfInvalid(address);
 
     let status;
     // see if address is already whitelisted / requested registration
@@ -37,7 +40,10 @@ async function register(address) {
             return status;
         }
         else {
-            status.requestTimeStamp = requestTimeStamp; // update timestamp (reregister)
+            const expiration = time.checkExpiration(status.requestTimeStamp, INTERVAL);
+            if (expiration.isExpired) {
+                status.requestTimeStamp = requestTimeStamp; // update timestamp (reregister)
+            }
         }
     } catch(err) {
         // not already whitelisted
@@ -61,9 +67,7 @@ async function validate(address, signature) {
     // topmost so that we always have correct timestamp
     const timestamp = time.now();
     // address validation in all cases
-    if (!bitcoin.validateAddress(address)) {
-        throw new Error('Invalid wallet address');
-    }
+    errIfInvalid(address);
 
     let status;
     // see if address is already whitelisted / requested registration
@@ -92,10 +96,19 @@ async function validate(address, signature) {
 }
 
 
+async function remove(address) {
+    errIfInvalid(address);
+
+    await levelDB.removeAddressStatus(address);
+}
+
+
 module.exports = {
     INTERVAL,
     getMessage,
+    errIfInvalid,
     fetch,
     register,
     validate,
+    remove,
 }

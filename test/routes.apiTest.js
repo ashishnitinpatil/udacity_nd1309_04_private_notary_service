@@ -238,6 +238,27 @@ describe('POST /block', function() {
 });
 
 describe('POST /block', function() {
+    before(done => check(done));
+
+    it('Multiple star registrations without id revalidation should err', function(done) {
+        const data = {
+            "address": ADDRESS,
+            "star": STAR,
+        };
+        server
+        .post('/block')
+        .send(data)
+        .expect('Content-Type', /json/)
+        .expect(400)
+        .end((err, res) => {
+            // console.log(res.body);
+            assert(res.body.error);
+            done();
+        });
+    });
+});
+
+describe('POST /block', function() {
     it('Invalid star should throw error', function(done) {
         const data = {
             "address": ADDRESS,
@@ -317,6 +338,8 @@ describe('GET /block/:height', function() {
 });
 
 describe('GET /stars/address:address', function() {
+    before(done => check(done));
+
     it('GET stars by address should work', function(done) {
         server
         .get(`/stars/address:${ADDRESS}`)

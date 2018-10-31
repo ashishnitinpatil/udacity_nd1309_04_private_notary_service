@@ -29,7 +29,7 @@ function addData(key, data) {
 
 
 function deleteKey(key) {
-    return db.del(key, data);
+    return db.del(key);
 }
 
 
